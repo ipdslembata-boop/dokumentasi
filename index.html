@@ -11,13 +11,17 @@
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .a4-page {
             width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
+            height: 297mm;
+            padding: 10mm 12mm; /* Margin halaman diperbesar sedikit agar lebih rapi dan proporsional */
             margin: 10mm auto;
             background: white;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             box-sizing: border-box;
             position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         @media print {
             body { background: none; }
@@ -26,7 +30,7 @@
                 margin: 0;
                 box-shadow: none;
                 width: 100%;
-                min-height: 100vh;
+                height: 297mm;
                 page-break-after: always;
             }
         }
@@ -38,7 +42,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
             <div>
                 <h1 class="text-xl font-bold text-slate-900">Generator Halaman Dokumentasi A4</h1>
-                <p class="text-xs text-slate-500 mt-0.5">Upload foto kegiatan, otomatis tersusun rapi ukuran A4 siap cetak / PDF / WhatsApp[cite: 3].</p>
+                <p class="text-xs text-slate-500 mt-0.5">Upload foto kegiatan, otomatis tersusun 6 foto penuh dengan margin proporsional.</p>
             </div>
             <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                 <button onclick="downloadPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition cursor-pointer">📥 Download PDF</button>
@@ -67,9 +71,7 @@
         </div>
     </div>
 
-    <div id="printArea" class="mx-auto flex flex-col gap-6">
-        <!-- Initial Render State -->
-    </div>
+    <div id="printArea" class="mx-auto flex flex-col gap-6"></div>
 
     <script>
         let uploadedPhotos = [];
@@ -108,19 +110,24 @@
 
             if (uploadedPhotos.length === 0) {
                 printArea.innerHTML = `
-                    <div class="a4-page flex flex-col justify-between">
+                    <div class="a4-page">
                         <div>
-                            <div class="border-b-2 border-slate-800 pb-3 mb-6">
-                                <h2 class="text-lg font-bold text-slate-900 uppercase">${currentJudul}</h2>
-                                <p class="text-xs text-slate-600 mt-1">${currentSub}</p>
+                            <div class="border-b-2 border-slate-800 pb-2 mb-2 flex justify-between items-end">
+                                <div>
+                                    <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
+                                    <p class="text-[9px] text-slate-600 mt-0.5">${currentSub}</p>
+                                </div>
+                                <div class="text-right text-[9px] text-slate-500">
+                                    <span>Halaman 1 dari 1</span>
+                                </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="border border-dashed border-slate-300 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[220px] col-span-2">
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <div class="border border-dashed border-slate-300 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center h-[210px] sm:h-[225px] col-span-2">
                                     <span>Belum ada foto yang di-upload. Silakan pilih foto melalui panel di atas.</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="border-t border-slate-200 pt-3 mt-6 flex justify-between items-center text-[10px] text-slate-500">
+                        <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center text-[9px] text-slate-500">
                             <span>Dokumen Resmi Dicetak Otomatis</span>
                             <span>${printDateStr}</span>
                         </div>
@@ -128,7 +135,7 @@
                 return;
             }
 
-            const photosPerPage = 4;
+            const photosPerPage = 6; 
             const totalPages = Math.ceil(uploadedPhotos.length / photosPerPage);
 
             for (let p = 0; p < totalPages; p++) {
@@ -138,36 +145,51 @@
                 pagePhotos.forEach((photo, idx) => {
                     const globalIdx = (p * photosPerPage) + idx;
                     photoHtml += `
-                        <div class="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden p-2.5">
-                            <div class="w-full h-[180px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center relative">
+                        <div class="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden p-1.5">
+                            <!-- Tinggi foto disesuaikan proporsional dengan margin baru -->
+                            <div class="w-full h-[210px] sm:h-[222px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center relative">
                                 <img src="${photo.src}" class="w-full h-full object-cover">
-                                <span class="absolute top-2 left-2 bg-slate-900/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">Foto ${globalIdx + 1}</span>
+                                <span class="absolute top-1.5 left-1.5 bg-slate-900/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">Foto ${globalIdx + 1}</span>
                             </div>
-                            <div class="mt-2 px-1">
-                                <input type="text" value="${photo.caption}" oninput="uploadedPhotos[${globalIdx}].caption = this.value" class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-lg p-1.5 outline-none focus:border-blue-500 text-slate-700 font-medium" placeholder="Tulis keterangan foto...">
+                            <div class="mt-1 px-0.5">
+                                <input type="text" value="${photo.caption}" oninput="uploadedPhotos[${globalIdx}].caption = this.value" class="w-full text-[10px] bg-slate-50 border border-slate-200 rounded-lg p-1 outline-none focus:border-blue-500 text-slate-700 font-medium" placeholder="Tulis keterangan foto...">
                             </div>
                         </div>
                     `;
                 });
 
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'a4-page flex flex-col justify-between';
-                pageDiv.innerHTML = `
-                    <div>
-                        <div class="border-b-2 border-slate-800 pb-3 mb-6 flex justify-between items-end">
-                            <div>
-                                <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
-                                <p class="text-xs text-slate-600 mt-1">${currentSub}</p>
+                const remainingSlots = photosPerPage - pagePhotos.length;
+                for(let i=0; i<remainingSlots; i++) {
+                    photoHtml += `
+                        <div class="flex flex-col bg-white border border-dashed border-slate-200 rounded-xl overflow-hidden p-1.5 opacity-30">
+                            <div class="w-full h-[210px] sm:h-[222px] bg-slate-50 rounded-lg flex items-center justify-center text-[10px] text-slate-400">
+                                Kosong
                             </div>
-                            <div class="text-right text-[10px] text-slate-500">
-                                <span class="text-slate-600">Halaman ${p + 1} dari ${totalPages}</span>
+                            <div class="mt-1 px-0.5">
+                                <div class="w-full h-[22px] bg-slate-50 rounded-lg"></div>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                    `;
+                }
+
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'a4-page';
+                pageDiv.innerHTML = `
+                    <div>
+                        <div class="border-b-2 border-slate-800 pb-2 mb-2 flex justify-between items-end">
+                            <div>
+                                <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
+                                <p class="text-[9px] text-slate-600 mt-0.5">${currentSub}</p>
+                            </div>
+                            <div class="text-right text-[9px] text-slate-500">
+                                <span>Halaman ${p + 1} dari ${totalPages}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
                             ${photoHtml}
                         </div>
                     </div>
-                    <div class="border-t border-slate-200 pt-3 mt-6 flex justify-between items-center text-[10px] text-slate-500">
+                    <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center text-[9px] text-slate-500">
                         <span>Dokumentasi Kegiatan Lapangan</span>
                         <span>${printDateStr}</span>
                     </div>
@@ -191,16 +213,13 @@
         function shareWhatsApp() {
             const judul = document.getElementById('inputJudul').value || 'DOKUMENTASI KEGIATAN';
             const sub = document.getElementById('inputSub').value || '';
-            
-            // Teks pesan yang otomatis terisi ke WhatsApp
-            const text = `*${judul}*\n_${sub}_\n\nBerikut adalah laporan dokumentasi kegiatan lapangan yang telah disusun[cite: 3].`;
-            const encodedText = encodeURIComponent(text);
-            
-            // Membuka tautan Web/App WhatsApp
-            window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+            const text = `*${judul}*
+_${sub}_
+
+Berikut adalah laporan dokumentasi kegiatan lapangan yang telah disusun.`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // Initial call to show empty state
         renderPages();
     </script>
 </body>
