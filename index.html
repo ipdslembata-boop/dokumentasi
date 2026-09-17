@@ -12,7 +12,7 @@
         .a4-page {
             width: 210mm;
             height: 297mm;
-            padding: 10mm 12mm; /* Margin halaman diperbesar sedikit agar lebih rapi dan proporsional */
+            padding: 6mm 10mm; /* Margin atas-bawah diperkecil sedikit agar ruang kosong habis */
             margin: 10mm auto;
             background: white;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -42,7 +42,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
             <div>
                 <h1 class="text-xl font-bold text-slate-900">Generator Halaman Dokumentasi A4</h1>
-                <p class="text-xs text-slate-500 mt-0.5">Upload foto kegiatan, otomatis tersusun 6 foto penuh dengan margin proporsional.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Upload foto kegiatan, otomatis tersusun 6 foto penuh proporsional di A4.</p>
             </div>
             <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                 <button onclick="downloadPDF()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition cursor-pointer">📥 Download PDF</button>
@@ -112,7 +112,7 @@
                 printArea.innerHTML = `
                     <div class="a4-page">
                         <div>
-                            <div class="border-b-2 border-slate-800 pb-2 mb-2 flex justify-between items-end">
+                            <div class="border-b-2 border-slate-800 pb-1.5 mb-2 flex justify-between items-end">
                                 <div>
                                     <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
                                     <p class="text-[9px] text-slate-600 mt-0.5">${currentSub}</p>
@@ -121,13 +121,13 @@
                                     <span>Halaman 1 dari 1</span>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2.5">
-                                <div class="border border-dashed border-slate-300 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center h-[210px] sm:h-[225px] col-span-2">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="border border-dashed border-slate-300 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center h-[460px] col-span-2">
                                     <span>Belum ada foto yang di-upload. Silakan pilih foto melalui panel di atas.</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center text-[9px] text-slate-500">
+                        <div class="border-t border-slate-200 pt-1 flex justify-between items-center text-[9px] text-slate-500">
                             <span>Dokumen Resmi Dicetak Otomatis</span>
                             <span>${printDateStr}</span>
                         </div>
@@ -146,8 +146,8 @@
                     const globalIdx = (p * photosPerPage) + idx;
                     photoHtml += `
                         <div class="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden p-1.5">
-                            <!-- Tinggi foto disesuaikan proporsional dengan margin baru -->
-                            <div class="w-full h-[210px] sm:h-[222px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center relative">
+                            <!-- Tinggi foto disesuaikan ke h-[242px] agar pas mengisi sisa ruang bawah -->
+                            <div class="w-full h-[232px] sm:h-[242px] bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center relative">
                                 <img src="${photo.src}" class="w-full h-full object-cover">
                                 <span class="absolute top-1.5 left-1.5 bg-slate-900/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">Foto ${globalIdx + 1}</span>
                             </div>
@@ -162,7 +162,7 @@
                 for(let i=0; i<remainingSlots; i++) {
                     photoHtml += `
                         <div class="flex flex-col bg-white border border-dashed border-slate-200 rounded-xl overflow-hidden p-1.5 opacity-30">
-                            <div class="w-full h-[210px] sm:h-[222px] bg-slate-50 rounded-lg flex items-center justify-center text-[10px] text-slate-400">
+                            <div class="w-full h-[232px] sm:h-[242px] bg-slate-50 rounded-lg flex items-center justify-center text-[10px] text-slate-400">
                                 Kosong
                             </div>
                             <div class="mt-1 px-0.5">
@@ -176,7 +176,7 @@
                 pageDiv.className = 'a4-page';
                 pageDiv.innerHTML = `
                     <div>
-                        <div class="border-b-2 border-slate-800 pb-2 mb-2 flex justify-between items-end">
+                        <div class="border-b-2 border-slate-800 pb-1.5 mb-2 flex justify-between items-end">
                             <div>
                                 <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
                                 <p class="text-[9px] text-slate-600 mt-0.5">${currentSub}</p>
@@ -185,11 +185,11 @@
                                 <span>Halaman ${p + 1} dari ${totalPages}</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2.5">
+                        <div class="grid grid-cols-2 gap-2">
                             ${photoHtml}
                         </div>
                     </div>
-                    <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center text-[9px] text-slate-500">
+                    <div class="border-t border-slate-200 pt-1 flex justify-between items-center text-[9px] text-slate-500">
                         <span>Dokumentasi Kegiatan Lapangan</span>
                         <span>${printDateStr}</span>
                     </div>
