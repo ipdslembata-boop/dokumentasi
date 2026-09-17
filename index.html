@@ -173,7 +173,7 @@
                 const pageDiv = document.createElement('div');
                 pageDiv.className = 'a4-page';
                 pageDiv.innerHTML = `
-                    ` + `<div>
+                    <div>
                         <div class="border-b-2 border-slate-800 pb-2 mb-2 flex justify-between items-end">
                             <div>
                                 <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wide">${currentJudul}</h2>
@@ -190,44 +190,59 @@
                     <div class="border-t border-slate-200 pt-1.5 flex justify-between items-center text-[9px] text-slate-500">
                         <span>Dokumentasi Kegiatan Lapangan</span>
                         <span>${printDateStr}</span>
-                    </div>`;
+                    </div>
+                `;
                 printArea.appendChild(pageDiv);
             }
         }
 
+        // Fungsi Download PDF yang Aman & Stabil
         function downloadPDF() {
             const element = document.getElementById('printArea');
             const opt = {
                 margin:       0,
                 filename:     'Dokumentasi_Kegiatan.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            return html2pdf().from(element).set(opt).save();
+            
+            // Eksekusi html2pdf dengan penanganan error yang baik
+            html2pdf().from(element).set(opt).save().catch(err => {
+                console.error("Gagal mendownload PDF:", err);
+                alert("Terjadi kesalahan saat membuat PDF. Pastikan foto sudah ter-upload.");
+            });
         }
 
-        // Fitur Kirim Langsung Menggunakan Web Share API (Mendukung File PDF langsung ke WhatsApp)
+        // Fungsi Kirim Langsung File PDF ke WhatsApp via Web Share API
         async function shareDirectPDF() {
             const judul = document.getElementById('inputJudul').value || 'DOKUMENTASI KEGIATAN';
             const sub = document.getElementById('inputSub').value || '';
-            
             const element = document.getElementById('printArea');
+            
             const opt = {
                 margin:       0,
                 filename:     'Dokumentasi_Kegiatan.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             try {
-                // Generate PDF sebagai Blob (File di memori)
-                const pdfWorker = html2pdf().from(element).set(opt);
-                const pdfBlob = await pdfWorker.output('blob');
+                // Tampilkan indikator proses sebentar
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '⏳ Menyiapkan PDF...';
+                btn.disabled = true;
+
+                // Render PDF ke dalam bentuk Blob file di memori
+                const pdfBlob = await html2pdf().from(element).set(opt).output('blob');
                 const pdfFile = new File([pdfBlob], 'Dokumentasi_Kegiatan.pdf', { type: 'application/pdf' });
 
-                // Cek apakah perangkat mendukung fitur Share File Langsung
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                // Cek apakah perangkat mendukung share file langsung
                 if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
                     await navigator.share({
                         title: judul,
@@ -235,12 +250,17 @@
                         files: [pdfFile]
                     });
                 } else {
-                    // Fallback jika browser tidak mendukung share file langsung
+                    // Jika browser/perangkat tidak mendukung share file langsung, jalankan download biasa
                     downloadPDF();
-                    alert('Browser Anda belum mendukung pengiriman file langsung. PDF telah didownload secara otomatis.');
+                    alert('Perangkat/Browser Anda membatasi kirim file langsung. PDF telah didownload secara otomatis ke perangkat Anda.');
                 }
             } catch (error) {
-                console.log('Proses share dibatalkan atau tidak didukung:', error);
+                const btn = event.currentTarget;
+                if(btn) {
+                    btn.innerHTML = 'Kirim Langsung ke WA';
+                    btn.disabled = false;
+                }
+                console.log('Share dibatalkan atau galat:', error);
             }
         }
     </script>
