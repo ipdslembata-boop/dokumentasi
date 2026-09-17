@@ -196,53 +196,49 @@
             }
         }
 
-        // Fungsi Download PDF yang Aman & Stabil
-        function downloadPDF() {
+        // Pengaturan PDF yang aman untuk HP (Scale diturunkan agar tidak Out of Memory)
+        function getPdfConfig() {
             const element = document.getElementById('printArea');
             const opt = {
                 margin:       0,
                 filename:     'Dokumentasi_Kegiatan.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                image:        { type: 'jpeg', quality: 0.90 },
+                html2canvas:  { 
+                    scale: 1.5,          // Diturunkan dari 2 ke 1.5 agar aman untuk RAM HP
+                    useCORS: true, 
+                    allowTaint: true,
+                    logging: false 
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            
-            // Eksekusi html2pdf dengan penanganan error yang baik
+            return { element, opt };
+        }
+
+        function downloadPDF() {
+            const { element, opt } = getPdfConfig();
             html2pdf().from(element).set(opt).save().catch(err => {
                 console.error("Gagal mendownload PDF:", err);
-                alert("Terjadi kesalahan saat membuat PDF. Pastikan foto sudah ter-upload.");
+                alert("Memori perangkat penuh atau foto terlalu besar. Coba kurangi jumlah foto dalam sekali upload.");
             });
         }
 
-        // Fungsi Kirim Langsung File PDF ke WhatsApp via Web Share API
         async function shareDirectPDF() {
             const judul = document.getElementById('inputJudul').value || 'DOKUMENTASI KEGIATAN';
             const sub = document.getElementById('inputSub').value || '';
-            const element = document.getElementById('printArea');
-            
-            const opt = {
-                margin:       0,
-                filename:     'Dokumentasi_Kegiatan.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const { element, opt } = getPdfConfig();
 
             try {
-                // Tampilkan indikator proses sebentar
                 const btn = event.currentTarget;
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '⏳ Menyiapkan PDF...';
+                btn.innerHTML = '⏳ Menyiapkan...';
                 btn.disabled = true;
 
-                // Render PDF ke dalam bentuk Blob file di memori
                 const pdfBlob = await html2pdf().from(element).set(opt).output('blob');
                 const pdfFile = new File([pdfBlob], 'Dokumentasi_Kegiatan.pdf', { type: 'application/pdf' });
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
 
-                // Cek apakah perangkat mendukung share file langsung
                 if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
                     await navigator.share({
                         title: judul,
@@ -250,9 +246,7 @@
                         files: [pdfFile]
                     });
                 } else {
-                    // Jika browser/perangkat tidak mendukung share file langsung, jalankan download biasa
                     downloadPDF();
-                    alert('Perangkat/Browser Anda membatasi kirim file langsung. PDF telah didownload secara otomatis ke perangkat Anda.');
                 }
             } catch (error) {
                 const btn = event.currentTarget;
