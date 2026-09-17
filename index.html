@@ -147,7 +147,7 @@
                     photoHtml += `
                         <div class="flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden p-1.5">
                             <!-- Menggunakan background-size: cover agar foto otomatis di-crop memenuhi kotak secara penuh -->
-                            <div class="w-full h-[220px] bg-slate-900 rounded-lg relative" style="background-image: url('${photo.src}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                            <div class="w-full h-[260px] bg-slate-900 rounded-lg relative" style="background-image: url('${photo.src}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                                 <span class="absolute top-1.5 left-1.5 bg-slate-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">Foto ${globalIdx + 1}</span>
                             </div>
                             <div class="mt-1 px-0.5">
@@ -161,7 +161,7 @@
                 for(let i=0; i<remainingSlots; i++) {
                     photoHtml += `
                         <div class="flex flex-col bg-white border border-dashed border-slate-200 rounded-xl overflow-hidden p-1.5 opacity-30">
-                            <div class="w-full h-[220px] bg-slate-50 rounded-lg flex items-center justify-center text-[10px] text-slate-400">
+                            <div class="w-full h-[260px] bg-slate-50 rounded-lg flex items-center justify-center text-[10px] text-slate-400">
                                 Kosong
                             </div>
                             <div class="mt-1 px-0.5">
